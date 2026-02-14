@@ -1,0 +1,5 @@
+---
+web_server_packages:
+  - nginx
+  - php-fpm
+  - imagemagick

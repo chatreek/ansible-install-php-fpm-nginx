@@ -1,0 +1,81 @@
+---
+- name: Ensure dependencies for PPA are present
+  apt:
+    name:
+      - software-properties-common
+    state: present
+    update_cache: yes
+
+- name: Add PHP PPA repository
+  apt_repository:
+    repo: "ppa:ondrej/php"
+    state: present
+
+- name: Install ImageMagick
+  apt:
+    name: imagemagick
+    state: present
+
+- name: Install PHP packages
+  apt:
+    name: "{{ php_packages }}"
+    state: present
+
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Create Nginx configuration for PHP-FPM
+  copy:
+    dest: /etc/nginx/sites-available/default
+    content: |
+      server {
+          listen 80 default_server;
+          listen [::]:80 default_server;
+
+          root /var/www/html;
+          index index.php index.html index.htm index.nginx-debian.html;
+
+          server_name _;
+
+          location / {
+              try_files $uri $uri/ =404;
+          }
+
+          location ~ \.php$ {
+              include snippets/fastcgi-php.conf;
+              fastcgi_pass unix:/run/php/php{{ php_version }}-fpm.sock;
+          }
+      }
+  notify: Restart Nginx
+
+- name: Ensure Nginx is enabled and started
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Ensure PHP-FPM is enabled and started
+  service:
+    name: "php{{ php_version }}-fpm"
+    state: started
+    enabled: yes
+
+- name: Configure Nginx Virtual Host
+  template:
+    src: nginx_vhost.j2
+    dest: "/etc/nginx/sites-available/{{ domain_assign }}.conf"
+  notify: Restart Nginx
+
+- name: Enable Nginx Virtual Host
+  file:
+    src: "/etc/nginx/sites-available/{{ domain_assign }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ domain_assign }}.conf"
+    state: link
+
+- name: Configure PHP-FPM pool
+  template:
+    src: www.conf.j2
+    dest: "/etc/php/{{ php_version }}/fpm/pool.d/www.conf"
+  notify: Restart PHP-FPM

@@ -1,0 +1,43 @@
+---
+# defaults file for ansible-install-php-fpm
+
+php_version: "8.4"
+domain_assign: "mch.mfu.ac.th"
+
+web_user: "typo3"
+web_group: "www"
+nginx_worker_connections: 1024
+
+php_fpm_pm_max_children: 5
+php_fpm_pm_start_servers: 2
+php_fpm_pm_min_spare_servers: 1
+php_fpm_pm_max_spare_servers: 3
+
+php_output_buffering: "Off"
+php_max_execution_time: "1024"
+php_max_input_time: "60"
+php_max_input_vars: "1500"
+php_memory_limit: "1024M"
+php_error_reporting: "E_ALL & ~E_NOTICE"
+php_post_max_size: "100M"
+php_cgi_fix_pathinfo: "0"
+php_upload_max_filesize: "2048M"
+php_max_file_uploads: "100"
+php_date_timezone: "Asia/Bangkok"
+
+php_packages:
+  - php-common
+  - php{{ php_version }}-bcmath
+  - php{{ php_version }}-cli
+  - php{{ php_version }}-common
+  - php{{ php_version }}-fpm
+  - php{{ php_version }}-gd
+  - php{{ php_version }}-imagick
+  - php{{ php_version }}-intl
+  - php{{ php_version }}-mbstring
+  - php{{ php_version }}-mysql
+  - php{{ php_version }}-opcache
+  - php{{ php_version }}-readline
+  - php{{ php_version }}-soap
+  - php{{ php_version }}-xml
+  - php{{ php_version }}-zip

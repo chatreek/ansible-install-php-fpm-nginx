@@ -1,0 +1,23 @@
+---
+- name: Install Web Server and PHP packages
+  package:
+    name: "{{ web_server_packages }}"
+    state: present
+  tags:
+    - install-web-server
+
+- block:
+    - name: create symlink for config
+      file:
+        src: "{{ default_php72_remi_config }}"
+        dest: /etc/php
+        state: link
+      when: default_php72_remi_config is defined
+
+    - name: Create link for php command.
+      file:
+        src: "{{ default_php72_remi_command }}"
+        dest: /usr/bin/php
+        state: link
+      when: default_php72_remi_command is defined
+  when: ansible_os_family == 'RedHat'
